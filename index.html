@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #121212; --surface: #1e1e1e; --primary: #fbbf24; /* สีเหลืองอำพันให้ดูเป็นของกิน */
+            --bg: #121212; --surface: #1e1e1e; --primary: #fbbf24; 
             --primary-dark: #f59e0b; --danger: #f87171; --text: #f3f4f6; --line-green: #06C755;
         }
 
@@ -20,12 +20,14 @@
         .header { text-align: center; margin-bottom: 5px; }
         .header h1 { font-size: 26px; font-weight: 700; color: var(--primary); }
 
-        /* กล่องรับข้อความและกล่องแสดงผล */
         .box-title { font-size: 16px; color: #9ca3af; margin-bottom: -10px; padding-left: 5px; }
-        .text-box { width: 100%; min-height: 120px; background-color: var(--surface); color: var(--text); border: 2px solid #333; border-radius: 12px; padding: 15px; font-size: 18px; line-height: 1.5; resize: none; outline: none; transition: border-color 0.3s; font-family: 'Prompt', sans-serif;}
-        .text-box:focus { border-color: var(--primary); }
         
-        #outputText { background-color: #27272a; border-color: var(--primary); font-size: 22px; font-weight: 500; }
+        /* กล่องรับข้อความ */
+        #inputText { width: 100%; min-height: 100px; background-color: var(--surface); color: var(--text); border: 2px solid #333; border-radius: 12px; padding: 15px; font-size: 16px; resize: none; outline: none; transition: border-color 0.3s; font-family: 'Prompt', sans-serif;}
+        #inputText:focus { border-color: var(--primary); }
+        
+        /* กล่องผลลัพธ์อิโมจิ (เน้นตัวใหญ่ๆ) */
+        #outputText { width: 100%; min-height: 180px; background-color: #27272a; border: 2px solid var(--primary); border-radius: 12px; padding: 20px; font-size: 36px; line-height: 1.8; color: white; resize: none; outline: none; text-align: center; }
 
         .toolbar { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .btn { border: none; border-radius: 12px; padding: 12px; font-family: 'Prompt', sans-serif; font-size: 16px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.1s; }
@@ -35,10 +37,8 @@
         .btn-clear { background-color: rgba(248, 113, 113, 0.1); color: var(--danger); border: 1px solid var(--danger); }
 
         .action-container { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; margin-bottom: 20px; }
-        
         .btn-convert { width: 100%; background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: #000; font-size: 20px; font-weight: 700; padding: 15px; border-radius: 12px; }
-        
-        .btn-line { width: 100%; background: linear-gradient(135deg, var(--line-green), #05a546); color: white; font-size: 20px; font-weight: 700; padding: 15px; border-radius: 12px; box-shadow: 0 8px 20px rgba(6, 199, 85, 0.3); }
+        .btn-line { width: 100%; background: linear-gradient(135deg, var(--line-green), #05a546); color: white; font-size: 20px; font-weight: 700; padding: 15px; border-radius: 12px; }
 
         .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background-color: #333; color: white; padding: 12px 24px; border-radius: 30px; transition: all 0.3s; opacity: 0; z-index: 1000; }
         .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
@@ -48,22 +48,22 @@
 
     <div class="container">
         <div class="header">
-            <h1>🍳 สแกนออเดอร์เป็นภาพ</h1>
+            <h1>🍳 ล่ามแปลภาษาครัว</h1>
         </div>
 
-        <div class="box-title">📥 วางออเดอร์จากลูกค้า:</div>
-        <textarea id="inputText" class="text-box" placeholder="วางออเดอร์ที่คัดลอกมา..."></textarea>
+        <div class="box-title">📥 วางออเดอร์ภาษาไทย:</div>
+        <textarea id="inputText" placeholder="วางออเดอร์ตรงนี้..."></textarea>
 
         <div class="toolbar">
             <button class="btn btn-paste" onclick="pasteFromClipboard()">📋 วางข้อความ</button>
             <button class="btn btn-clear" onclick="clearText()">🗑️ ล้างข้อมูล</button>
         </div>
 
-        <div class="box-title">✨ ออเดอร์สำหรับห้องครัว:</div>
-        <textarea id="outputText" class="text-box" placeholder="ผลลัพธ์จะแสดงที่นี่..." readonly></textarea>
+        <div class="box-title">✨ ออเดอร์สำหรับพนักงาน (ดูภาพทำได้เลย):</div>
+        <textarea id="outputText" placeholder="ภาพจะแสดงตรงนี้..." readonly></textarea>
 
         <div class="action-container">
-            <button class="btn btn-convert" onclick="convertToEmoji()">🪄 แปลงข้อความเป็นภาพ</button>
+            <button class="btn btn-convert" onclick="convertToEmoji()">🪄 แปลงเป็นรูปภาพ</button>
             <button class="btn btn-line" onclick="shareToLine()">💬 ส่งออเดอร์เข้า LINE</button>
         </div>
     </div>
@@ -74,15 +74,12 @@
         const inputText = document.getElementById('inputText');
         const outputText = document.getElementById('outputText');
 
-        // พจนานุกรมคำศัพท์ -> อิโมจิ (สามารถเพิ่มคำได้ตามเมนูร้านเลยครับ)
+        // ฐานข้อมูลคำศัพท์ (เพิ่มลดได้ตามใจชอบ)
         const emojiDictionary = {
-            // เมนูหลัก
             "กะเพรา": "🌿",
             "กระเทียม": "🧄",
             "ข้าวผัด": "🍚",
-            "ผัดพริกแกง": "🍛",
-            "ต้มยำ": "🍲",
-            // เนื้อสัตว์
+            "พริกแกง": "🍛",
             "หมูกรอบ": "🥓",
             "หมูชิ้น": "🐖",
             "หมูสับ": "🐷",
@@ -92,20 +89,12 @@
             "กุ้ง": "🦐",
             "ปลาหมึก": "🦑",
             "หมึก": "🦑",
-            // ออปชั่นเสริม
             "ไข่ดาว": "🍳",
             "ไข่เจียว": "🥚",
-            "ไม่สุก": "🍳(เยิ้ม)",
-            "สุก": "🍳(สุก)",
-            // รสชาติ / คำสั่งพิเศษ
             "เผ็ดมาก": "🌶️🌶️🌶️",
             "เผ็ดน้อย": "🌶️",
             "ไม่เผ็ด": "🚫🌶️",
-            "พิเศษ": "⭐",
-            "ธรรมดา": "⚪",
-            // การบรรจุ
-            "ใส่กล่อง": "📦",
-            "กลับบ้าน": "🛍️"
+            "พิเศษ": "⭐"
         };
 
         function clearText() {
@@ -119,46 +108,72 @@
                 const text = await navigator.clipboard.readText();
                 if (text) {
                     inputText.value = text;
-                    convertToEmoji(); // วางปุ๊บ แปลงให้ปั๊บ
+                    convertToEmoji(); 
                 }
             } catch (err) {
                 showToast('แตะค้างที่กล่องด้านบนแล้วเลือก "วาง"');
             }
         }
 
-        // ฟังก์ชันหลัก: ค้นหาคำและเติมอิโมจิ
+        // ฟังก์ชันล้างตัวหนังสือไทย เหลือแค่อิโมจิ
         function convertToEmoji() {
             let text = inputText.value.trim();
             if (!text) return;
 
-            // จัดการฟอร์แมตเบื้องต้น
-            text = text.replace(/^(\d+)\.\s*/gm, '▶️ $1. '); // เติมลูกศรหน้ารายการ
-            text = text.replace(/[×xX]\s*(\d+)/g, ' ❌ $1'); // เปลี่ยนเครื่องหมายคูณให้ชัดขึ้น
+            let lines = text.split('\n');
+            let finalOutput = [];
 
-            // วนลูปเช็คคำในพจนานุกรม แล้วแปะอิโมจิไว้ข้างหน้าคำนั้น
-            for (const [word, emoji] of Object.entries(emojiDictionary)) {
-                // ใช้ Regex เพื่อหาคำนั้นๆ (เว้นแต่ว่ามีอิโมจิอยู่แล้วจะได้ไม่ซ้ำ)
-                const regex = new RegExp(`(?<!${emoji}\\s*)${word}`, 'g');
-                text = text.replace(regex, `${emoji} ${word}`);
+            // เรียงคำศัพท์จากยาวไปสั้น (เพื่อกันไม่ให้คำว่า "เผ็ด" ไปตัดคำว่า "เผ็ดมาก")
+            const sortedKeys = Object.keys(emojiDictionary).sort((a, b) => b.length - a.length);
+
+            for (let line of lines) {
+                line = line.trim();
+                // ข้ามบรรทัดที่ไม่เกี่ยวกับของกิน
+                if (!line || line.startsWith('─') || line.startsWith('💰')) continue;
+
+                // 1. ดึงตัวเลขจำนวนออกมา (เช่น x2, 2 ที่)
+                let qty = "1";
+                let qtyMatch = line.match(/[xX×]\s*(\d+)/) || line.match(/(\d+)\s*(ที่|กล่อง|ห่อ)/);
+                if (qtyMatch) {
+                    qty = qtyMatch[1];
+                }
+
+                // 2. ดึงอิโมจิออกมาตามคำศัพท์ที่เจอ
+                let emojis = [];
+                for (let key of sortedKeys) {
+                    if (line.includes(key)) {
+                        emojis.push(emojiDictionary[key]);
+                        // ลบคำนั้นทิ้งไปจากบรรทัด เพื่อไม่ให้จับซ้ำ
+                        line = line.replace(new RegExp(key, 'g'), '');
+                    }
+                }
+
+                // 3. ประกอบร่าง (ถ้าบรรทัดนั้นมีออเดอร์)
+                if (emojis.length > 0) {
+                    // รูปแบบที่ได้: 2 📦 ➡️ 🌿 🐷 🍳
+                    finalOutput.push(`${qty} 📦 ➡️ ${emojis.join(' ')}`);
+                }
             }
 
-            outputText.value = text;
-            showToast('🪄 แปลงออเดอร์เรียบร้อย!');
+            if (finalOutput.length === 0) {
+                 outputText.value = "❓ หาเมนูไม่เจอ";
+                 return;
+            }
+
+            outputText.value = finalOutput.join('\n\n');
+            showToast('🪄 สกัดภาพสำเร็จ!');
         }
 
-        // ฟังชันก์ส่งข้อความที่แปลงแล้วเข้า LINE
         function shareToLine() {
             const finalOrder = outputText.value.trim();
-            if (!finalOrder) {
+            if (!finalOrder || finalOrder === "❓ หาเมนูไม่เจอ") {
                 showToast('⚠️ กรุณาแปลงข้อความก่อนส่งครับ');
                 return;
             }
 
-            // จัดฟอร์แมตข้อความก่อนส่ง
-            const messageToSend = `👨‍🍳 ออเดอร์ใหม่เข้าครับ!\n\n${finalOrder}`;
+            const messageToSend = `👨‍🍳 ออเดอร์ใหม่!\n\n${finalOrder}`;
 
             try {
-                // ส่งเป็นข้อความ Text เข้า LINE โดยตรง (ไม่จำกัดความยาว และไม่ต้องรอโหลดไฟล์)
                 const lineShareUrl = `https://line.me/R/msg/text/?${encodeURIComponent(messageToSend)}`;
                 window.open(lineShareUrl, '_blank');
             } catch (err) {
@@ -167,14 +182,6 @@
             }
         }
 
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            toast.textContent = msg;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
-        }
-
-        // พิมพ์ปุ๊บ แปลงปั๊บ (แบบ Real-time)
         inputText.addEventListener('input', convertToEmoji);
     </script>
 </body>
