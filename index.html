@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>อ่านออเดอร์ครัว - Text to Speech</title>
+    <title>ระบบอ่านออเดอร์ครัว - Krua Oil Oil</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -13,8 +13,7 @@
             --primary-dark: #22c55e;
             --danger: #f87171;
             --text: #f3f4f6;
-            --text-muted: #9ca3af;
-            --line-green: #06C755; /* สีเขียว LINE */
+            --line-green: #06C755;
         }
 
         * {
@@ -53,10 +52,6 @@
             font-size: 28px;
             font-weight: 700;
             color: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
         }
 
         .text-box {
@@ -98,58 +93,15 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            transition: transform 0.1s, filter 0.2s;
+            transition: transform 0.1s;
         }
 
         .btn:active {
             transform: scale(0.95);
         }
 
-        .btn-paste {
-            background-color: #374151;
-            color: white;
-        }
-        
-        .btn-clear {
-            background-color: rgba(248, 113, 113, 0.2);
-            color: var(--danger);
-            border: 1px solid rgba(248, 113, 113, 0.4);
-        }
-
-        .play-container {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .btn-play {
-            width: 100%;
-            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-            color: #000;
-            font-size: 24px;
-            font-weight: 700;
-            padding: 20px;
-            border-radius: 16px;
-        }
-
-        .btn-line {
-            width: 100%;
-            background: linear-gradient(135deg, var(--line-green), #05a546);
-            color: white;
-            font-size: 24px;
-            font-weight: 700;
-            padding: 20px;
-            border-radius: 16px;
-            box-shadow: 0 8px 25px rgba(6, 199, 85, 0.3);
-        }
-        
-        .btn-line:disabled {
-            background: #555;
-            box-shadow: none;
-            cursor: not-allowed;
-            transform: none;
-        }
+        .btn-paste { background-color: #374151; color: white; }
+        .btn-clear { background-color: rgba(248, 113, 113, 0.1); color: var(--danger); border: 1px solid var(--danger); }
 
         .settings {
             background-color: var(--surface);
@@ -160,15 +112,34 @@
             gap: 15px;
         }
 
-        .settings label {
-            font-size: 18px;
-            white-space: nowrap;
+        .settings label { font-size: 18px; }
+
+        input[type="range"] { flex: 1; accent-color: var(--primary); }
+
+        .play-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
         }
 
-        input[type="range"] {
-            flex: 1;
-            accent-color: var(--primary);
-            height: 8px;
+        .btn-play {
+            width: 100%;
+            background: #333;
+            color: var(--primary);
+            font-size: 20px;
+            border: 1px solid var(--primary);
+        }
+
+        .btn-line {
+            width: 100%;
+            background: linear-gradient(135deg, var(--line-green), #05a546);
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(6, 199, 85, 0.3);
         }
 
         .toast {
@@ -180,46 +151,37 @@
             color: white;
             padding: 12px 24px;
             border-radius: 30px;
-            font-size: 16px;
+            transition: all 0.3s;
             opacity: 0;
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            pointer-events: none;
             z-index: 1000;
         }
 
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <div class="header">
-            <h1>🗣️ ระบบสั่งการออเดอร์ครัว</h1>
+            <h1>🗣️ อ่านออเดอร์ส่งเข้า LINE</h1>
         </div>
 
-        <textarea id="orderText" class="text-box" placeholder="วางออเดอร์ที่คัดลอกมาลงที่นี่..."></textarea>
+        <textarea id="orderText" class="text-box" placeholder="วางออเดอร์ที่นี่..."></textarea>
 
         <div class="toolbar">
-            <button class="btn btn-paste" onclick="pasteFromClipboard()">📋 วางข้อความ</button>
+            <button class="btn btn-paste" onclick="pasteFromClipboard()">📋 วาง</button>
             <button class="btn btn-clear" onclick="clearText()">🗑️ ล้าง</button>
         </div>
 
         <div class="settings">
-            <label for="speedRate">🏃 ความเร็ว:</label>
-            <input type="range" id="speedRate" min="0.5" max="1.5" step="0.1" value="0.9">
-            <span id="speedValue">0.9x</span>
+            <label>🏃 ความเร็ว:</label>
+            <input type="range" id="speedRate" min="0.5" max="1.5" step="0.1" value="1.0">
+            <span id="speedValue">1.0x</span>
         </div>
 
         <div class="play-container">
-            <button id="playBtn" class="btn btn-play" onclick="toggleSpeech()">
-                ▶️ ลองฟังเสียงดูก่อน
-            </button>
-            <button id="shareBtn" class="btn btn-line" onclick="generateAndShareAudio()">
-                💬 สร้างไฟล์เสียง & ส่งเข้า LINE
-            </button>
+            <button id="playBtn" class="btn btn-play" onclick="togglePreview()">🔊 ลองฟังก่อน</button>
+            <button id="shareBtn" class="btn btn-line" onclick="generateAndShareAudio()">💬 ส่งออเดอร์เข้า LINE</button>
         </div>
     </div>
 
@@ -227,15 +189,11 @@
 
     <script>
         const textInput = document.getElementById('orderText');
-        const playBtn = document.getElementById('playBtn');
         const speedRate = document.getElementById('speedRate');
         const speedValue = document.getElementById('speedValue');
-        
         let synth = window.speechSynthesis;
 
-        speedRate.addEventListener('input', function() {
-            speedValue.textContent = this.value + 'x';
-        });
+        speedRate.addEventListener('input', () => speedValue.textContent = speedRate.value + 'x');
 
         function clearText() {
             textInput.value = '';
@@ -246,10 +204,7 @@
         async function pasteFromClipboard() {
             try {
                 const text = await navigator.clipboard.readText();
-                if (text) {
-                    textInput.value = text;
-                    showToast('✅ วางข้อความแล้ว');
-                }
+                if (text) textInput.value = text;
             } catch (err) {
                 showToast('แตะค้างที่กล่องข้อความแล้วเลือก "วาง"');
             }
@@ -258,113 +213,55 @@
         function cleanTextForSpeech(rawText) {
             let lines = rawText.split('\n');
             let speechParts = [];
-
             for (let line of lines) {
                 line = line.trim();
-                if (!line || line.startsWith('🍳') || line.startsWith('👤') || line.startsWith('🕐') || line.startsWith('─') || line.startsWith('💰')) continue;
-                line = line.replace(/^(\d+)\.\s*/, 'รายการที่ $1, ');
-                line = line.replace(/[×xX]\s*(\d+)/, '$1 ที่');
-                line = line.replace('📝', 'หมายเหตุ');
-                line = line.replace(/\(/g, ' ').replace(/\)/g, ' ');
+                if (!line || line.startsWith('🍳') || line.startsWith('👤') || line.startsWith('─')) continue;
+                line = line.replace(/^(\d+)\.\s*/, 'รายการที่ $1, ').replace(/[×xX]\s*(\d+)/, '$1 ที่').replace('📝', 'หมายเหตุ');
                 speechParts.push(line);
             }
-            return speechParts.length === 0 && rawText.trim() !== '' ? rawText : speechParts.join('. '); 
+            return speechParts.length === 0 ? rawText : speechParts.join('. '); 
         }
 
-        // ฟังก์ชัน 1: ฟังเสียงจำลองผ่านเบราว์เซอร์
-        function toggleSpeech() {
-            if (synth.speaking) {
-                synth.cancel();
-                playBtn.innerHTML = '▶️ ลองฟังเสียงดูก่อน';
-                return;
-            }
-            const rawText = textInput.value.trim();
-            if (!rawText) return showToast('⚠️ กรุณาใส่ข้อความก่อน');
-
-            const textToSpeak = cleanTextForSpeech(rawText);
+        // ฟังตัวอย่างในเครื่อง
+        function togglePreview() {
+            if (synth.speaking) { synth.cancel(); return; }
+            const textToSpeak = cleanTextForSpeech(textInput.value);
+            if (!textToSpeak.trim()) return showToast('⚠️ ใส่ข้อความก่อน');
             const utterance = new SpeechSynthesisUtterance(textToSpeak);
             utterance.lang = 'th-TH';
             utterance.rate = parseFloat(speedRate.value);
-            
-            utterance.onstart = () => playBtn.innerHTML = '⏹️ หยุดฟัง';
-            utterance.onend = () => playBtn.innerHTML = '▶️ ลองฟังเสียงดูก่อน';
             synth.speak(utterance);
         }
 
-        // ฟังก์ชัน 2: แปลงข้อความเป็น MP3 และแชร์ผ่านมือถือ
+        // ส่งเข้า LINE (แชร์ลิงก์เสียง)
         async function generateAndShareAudio() {
             const rawText = textInput.value.trim();
-            if (!rawText) return showToast('⚠️ กรุณาใส่ข้อความออเดอร์ก่อนครับ');
+            if (!rawText) return showToast('⚠️ กรุณาใส่ข้อความก่อน');
 
-            // ตัดคำให้ยาวไม่เกิน 200 ตัวอักษร (ข้อจำกัดของ API ฟรี)
             const textToSpeak = cleanTextForSpeech(rawText).substring(0, 200);
-            const shareBtn = document.getElementById('shareBtn');
-            
-            shareBtn.innerHTML = '⏳ กำลังสร้างไฟล์เสียง MP3...';
-            shareBtn.disabled = true;
+            const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=th&client=tw-ob&q=${encodeURIComponent(textToSpeak)}`;
 
             try {
-                // ขั้นตอนที่ 1: ส่งข้อความไปขอ API สร้างเสียง
-                const postRes = await fetch('https://api.soundoftext.com/requests', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ engine: 'Google', data: { text: textToSpeak, voice: 'th-TH' } })
-                });
-                const postData = await postRes.json();
-                if (!postData.success) throw new Error('API Error');
-
-                // ขั้นตอนที่ 2: วนลูปรอให้เซิร์ฟเวอร์แปลงเสียงเสร็จ
-                let audioUrl = '';
-                for (let i = 0; i < 10; i++) {
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    const getRes = await fetch(`https://api.soundoftext.com/requests/${postData.id}`);
-                    const getData = await getRes.json();
-                    if (getData.status === 'Done') {
-                        audioUrl = getData.location;
-                        break;
-                    }
-                }
-                
-                if (!audioUrl) throw new Error('Timeout');
-
-                // ขั้นตอนที่ 3: โหลดไฟล์ MP3 มาแปลงเป็น File Object
-                shareBtn.innerHTML = '🚀 กำลังเตรียมส่งเข้า LINE...';
-                const audioRes = await fetch(audioUrl);
-                const blob = await audioRes.blob();
-                const file = new File([blob], "Kitchen_Order.mp3", { type: "audio/mp3" });
-
-                // ขั้นตอนที่ 4: เด้งหน้าต่างแชร์ของมือถือ (ต้องรันบน https://)
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                if (navigator.share) {
                     await navigator.share({
-                        files: [file],
-                        title: 'ออเดอร์ใหม่',
-                        text: 'ออเดอร์ใหม่เข้าแล้วจ้า!'
-                    });
-                    showToast('✅ เปิดแอปสำเร็จ!');
-                } else {
-                    // หากเบราว์เซอร์ไม่รองรับการส่งไฟล์ จะแชร์เป็นลิงก์แทน
-                    await navigator.share({
-                        title: 'ออเดอร์ใหม่',
-                        text: 'คลิกเพื่อฟังออเดอร์: ',
+                        title: 'ออเดอร์ครัวใหม่',
+                        text: '🔊 คลิกเพื่อฟังออเดอร์: ',
                         url: audioUrl
                     });
+                } else {
+                    const lineShareUrl = `https://line.me/R/msg/text/?🔊 คลิกเพื่อฟังออเดอร์ครัว: %0A${encodeURIComponent(audioUrl)}`;
+                    window.open(lineShareUrl, '_blank');
                 }
             } catch (err) {
-                console.error(err);
-                showToast('❌ เกิดข้อผิดพลาด กรุณาลองใหม่');
-            } finally {
-                shareBtn.innerHTML = '💬 สร้างไฟล์เสียง & ส่งเข้า LINE';
-                shareBtn.disabled = false;
+                console.log('User cancelled');
             }
         }
 
-        let toastTimeout;
         function showToast(msg) {
             const toast = document.getElementById('toast');
             toast.textContent = msg;
             toast.classList.add('show');
-            clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => toast.classList.remove('show'), 3000);
+            setTimeout(() => toast.classList.remove('show'), 3000);
         }
     </script>
 </body>
